@@ -1,0 +1,10 @@
+# Sensitive Data & API Keys
+.env
+
+# Python Virtual Environment
+venv/
+__pycache__/
+*.pyc
+
+# Project Outputs
+project_files/
