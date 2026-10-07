@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SpendSense</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+    <h1 class="text-3xl font-bold mb-4 text-center">SpendSense</h1>
+
+    <!-- Filter -->
+    <div class="mb-4 flex items-center">
+      <label for="categoryFilter" class="mr-2 font-medium">Filter by Category:</label>
+      <select id="categoryFilter" class="border rounded px-2 py-1">
+        <option value="">All</option>
+      </select>
+    </div>
+
+    <!-- Expenses Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="border px-3 py-2 text-left">Amount</th>
+            <th class="border px-3 py-2 text-left">Date</th>
+            <th class="border px-3 py-2 text-left">Description</th>
+            <th class="border px-3 py-2 text-left">Category</th>
+            <th class="border px-3 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="expensesBody" class="bg-white"></tbody>
+      </table>
+    </div>
+
+    <!-- Form -->
+    <div class="mt-6 border-t pt-4">
+      <h2 class="text-2xl font-semibold mb-3" id="formTitle">Add New Expense</h2>
+      <form id="expenseForm" class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <input type="hidden" id="expenseId" />
+        <div>
+          <label class="block font-medium mb-1" for="amount">Amount</label>
+          <input type="number" step="0.01" id="amount" required class="w-full border rounded px-2 py-1"/>
+        </div>
+        <div>
+          <label class="block font-medium mb-1" for="date">Date</label>
+          <input type="date" id="date" required class="w-full border rounded px-2 py-1"/>
+        </div>
+        <div>
+          <label class="block font-medium mb-1" for="description">Description</label>
+          <input type="text" id="description" required class="w-full border rounded px-2 py-1"/>
+        </div>
+        <div class="md:col-span-3 flex justify-end space-x-2">
+          <button type="button" id="cancelEditBtn" class="hidden bg-gray-400 text-white px-4 py-2 rounded">Cancel</button>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Helper functions
+    const api = {
+      async getExpenses() {
+        const res = await fetch('/api/expenses');
+        if (!res.ok) throw new Error('Failed to fetch expenses');
+        return res.json();
+      },
+      async getCategories() {
+        const res = await fetch('/api/categories');
+        if (!res.ok) throw new Error('Failed to fetch categories');
+        return res.json();
+      },
+      async createExpense(data) {
+        const res = await fetch('/api/expenses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('Failed to create expense');
+        return res.json();
+      },
+      async updateExpense(id, data) {
+        const res = await fetch(`/api/expenses/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('Failed to update expense');
+        return res.json();
+      },
+      async deleteExpense(id) {
+        const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete expense');
+      }
+    };
+
+    // State
+    let expenses = [];
+    let categories = [];
+
+    // DOM Elements
+    const expensesBody = document.getElementById('expensesBody');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const expenseForm = document.getElementById('expenseForm');
+    const formTitle = document.getElementById('formTitle');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const expenseIdInput = document.getElementById('expenseId');
+    const amountInput = document.getElementById('amount');
+    const dateInput = document.getElementById('date');
+    const descriptionInput = document.getElementById('description');
+
+    // Render functions
+    function renderTable() {
+      const filterValue = categoryFilter.value;
+      expensesBody.innerHTML = '';
+      const filtered = filterValue ? expenses.filter(e => e.category === filterValue) : expenses;
+      filtered.forEach(exp => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border px-3 py-2">$${parseFloat(exp.amount).toFixed(2)}</td>
+          <td class="border px-3 py-2">${new Date(exp.date).toLocaleDateString()}</td>
+          <td class="border px-3 py-2">${exp.description}</td>
+          <td class="border px-3 py-2">${exp.category || ''}</td>
+          <td class="border px-3 py-2 space-x-2">
+            <button data-id="${exp.id}" class="editBtn bg-yellow-400 text-white px-2 py-1 rounded">Edit</button>
+            <button data-id="${exp.id}" class="deleteBtn bg-red-600 text-white px-2 py-1 rounded">Delete</button>
+          </td>
+        `;
+        expensesBody.appendChild(tr);
+      });
+    }
+
+    function populateCategories() {
+      categoryFilter.innerHTML = '<option value="">All</option>';
+      categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        categoryFilter.appendChild(opt);
+      });
+    }
+
+    // Event Handlers
+    async function loadInitialData() {
+      try {
+        [expenses, categories] = await Promise.all([api.getExpenses(), api.getCategories()]);
+        populateCategories();
+        renderTable();
+      } catch (e) {
+        console.error(e);
+        alert('Error loading data');
+      }
+    }
+
+    categoryFilter.addEventListener('change', renderTable);
+
+    expensesBody.addEventListener('click', async (e) => {
+      if (e.target.matches('.editBtn')) {
+        const id = e.target.dataset.id;
+        const exp = expenses.find(e => e.id == id);
+        if (!exp) return;
+        expenseIdInput.value = exp.id;
+        amountInput.value = exp.amount;
+        dateInput.value = exp.date;
+        descriptionInput.value = exp.description;
+        formTitle.textContent = 'Edit Expense';
+        cancelEditBtn.classList.remove('hidden');
+      } else if (e.target.matches('.deleteBtn')) {
+        if (!confirm('Delete this expense?')) return;
+        const id = e.target.dataset.id;
+        try {
+          await api.deleteExpense(id);
+          expenses = expenses.filter(e => e.id != id);
+          renderTable();
+        } catch (err) {
+          console.error(err);
+          alert('Failed to delete');
+        }
+      }
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+      expenseForm.reset();
+      expenseIdInput.value = '';
+      formTitle.textContent = 'Add New Expense';
+      cancelEditBtn.classList.add('hidden');
+    });
+
+    expenseForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        amount: amountInput.value,
+        date: dateInput.value,
+        description: descriptionInput.value
+      };
+      const id = expenseIdInput.value;
+      try {
+        if (id) {
+          const updated = await api.updateExpense(id, data);
+          expenses = expenses.map(e => (e.id == id ? updated : e));
+        } else {
+          const created = await api.createExpense(data);
+          expenses.push(created);
+        }
+        renderTable();
+        expenseForm.reset();
+        expenseIdInput.value = '';
+        formTitle.textContent = 'Add New Expense';
+        cancelEditBtn.classList.add('hidden');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to save expense');
+      }
+    });
+
+    // Init
+    document.addEventListener('DOMContentLoaded', loadInitialData);
+  </script>
+</body>
+</html>

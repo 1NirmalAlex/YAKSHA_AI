@@ -1,0 +1,17 @@
+{
+  "run_id": "78903eb0-17e8-48b0-a5c4-05155c61e04a",
+  "output_path": "F:\\Work\\YAKSHA_AI\\yaksha_ai_v2\\project_files\\78903eb0-17e8-48b0-a5c4-05155c61e04a\\app.py",
+  "output_size_bytes": 17481,
+  "app_name": "SpendSense",
+  "flask_app_var": "app",
+  "frontend_route": "/",
+  "port": 5000,
+  "dependencies": [
+    "flask",
+    "flask_sqlalchemy",
+    "scikit-learn",
+    "nltk"
+  ],
+  "warnings": [],
+  "assembled_at": "2026-10-03T06:01:24.067633+00:00"
+}

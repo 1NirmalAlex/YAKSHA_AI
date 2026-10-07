@@ -1,0 +1,8 @@
+# 2026-10-03 11:27:58 starting app.py on 127.0.0.1:53702
+Traceback (most recent call last):
+  File "<string>", line 7, in <module>
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "F:\Work\YAKSHA_AI\yaksha_ai_v2\project_files\d8a4c946-f446-4587-82d0-7e1517439588\app.py", line 12, in <module>
+    from flask_cors import CORS
+ModuleNotFoundError: No module named 'flask_cors'

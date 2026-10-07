@@ -1,0 +1,14 @@
+{
+  "app_name": "MyApp",
+  "description": "A placeholder web application with minimal functionality.",
+  "port": 5000,
+  "frontend_route": "/",
+  "flask_app_var": "app",
+  "dependencies": [
+    "flask"
+  ],
+  "backend_brief": "Create a Flask app exposing a single GET route at '/' that returns a JSON response {\"message\": \"Hello, World!\"}. No database or authentication required.",
+  "frontend_brief": "Develop a static HTML page served at '/' that fetches the JSON from the backend route and displays the 'message' field in a centered heading. Include minimal CSS for layout.",
+  "needs_ai_ml": false,
+  "ai_ml_brief": null
+}

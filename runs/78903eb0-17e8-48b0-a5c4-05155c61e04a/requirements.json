@@ -1,0 +1,17 @@
+{
+  "app_name": "SpendSense",
+  "description": "A web app to track personal expenses and automatically assign categories based on description keywords.",
+  "port": 5000,
+  "frontend_route": "/",
+  "flask_app_var": "app",
+  "dependencies": [
+    "flask",
+    "flask_sqlalchemy",
+    "scikit-learn",
+    "nltk"
+  ],
+  "backend_brief": "Create a Flask app with SQLAlchemy (SQLite) and a single Expense model (id PK, amount FLOAT, date DATE, description TEXT, category TEXT). Implement REST API under /api: GET /expenses returns all expenses as JSON; POST /expenses accepts {amount, date, description}, calls the AI categorizer to obtain a category, stores the record and returns it; PUT /expenses/<id> updates fields (re\u2011categorize if description changes); DELETE /expenses/<id> removes the record; GET /categories returns distinct category values. Enable CORS for the frontend. Load the ML categorizer at startup and expose a function `categorize(text)` that returns the predicted category string.",
+  "frontend_brief": "Build a single\u2011page interface with Bootstrap. On load, fetch /api/expenses and render a table showing amount, date, description, and auto\u2011assigned category, each row with Edit and Delete buttons. Provide a form (amount number, date picker, description text) that POSTs to /api/expenses; on success refresh the table. Include a dropdown populated from /api/categories to filter the displayed rows. Use vanilla JavaScript with fetch and async/await for all API calls. Ensure the app is served at the root route '/' and uses the default Flask static folder for CSS/JS assets.",
+  "needs_ai_ml": true,
+  "ai_ml_brief": "Implement a lightweight text\u2011classification pipeline using scikit\u2011learn. Create a small seed training set mapping common keywords to categories (e.g., Food, Transport, Entertainment, Utilities, Shopping, Other). Use CountVectorizer + MultinomialNB; train the model at startup and store the vectorizer and classifier in memory. Provide a function `categorize(text)` that transforms the input, predicts the category, and returns \"Other\" if the predicted probability is below 0.4. Expose a `partial_fit` capability so new labeled examples (if a user manually changes a category) can be added to the model without full retraining. Include minimal NLTK preprocessing (tokenization, lower\u2011casing) if needed."
+}

@@ -1,0 +1,14 @@
+{
+  "run_id": "cb00bd5b-9703-4d6d-a065-e8115cc43cd7",
+  "output_path": "F:\\Work\\YAKSHA_AI\\yaksha_ai_v2\\project_files\\cb00bd5b-9703-4d6d-a065-e8115cc43cd7\\app.py",
+  "output_size_bytes": 1591,
+  "app_name": "MyApp",
+  "flask_app_var": "app",
+  "frontend_route": "/",
+  "port": 5000,
+  "dependencies": [
+    "flask"
+  ],
+  "warnings": [],
+  "assembled_at": "2026-10-03T17:53:41.271963+00:00"
+}

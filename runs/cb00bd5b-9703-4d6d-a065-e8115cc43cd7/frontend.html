@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MyApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <h1 id="message" class="text-3xl font-semibold text-gray-800">Loading...</h1>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/message')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const heading = document.getElementById('message');
+          heading.textContent = data.message || 'No message';
+        })
+        .catch(error => {
+          const heading = document.getElementById('message');
+          heading.textContent = 'Error loading message';
+          console.error('Fetch error:', error);
+        });
+    });
+  </script>
+</body>
+</html>
